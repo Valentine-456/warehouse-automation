@@ -21,5 +21,10 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.cedarsoftware</groupId>
+            <artifactId>json-io</artifactId>
+            <version>4.14.0</version>
+        </dependency>
     </dependencies>
 </project>
