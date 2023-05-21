@@ -1,7 +1,6 @@
-package dataexchange.checksums;
+package dataexchange;
 
 import com.cedarsoftware.util.io.JsonWriter;
-import dataexchange.*;
 import dataexchange.ckecksums.CRC16Checksum;
 import dataexchange.ckecksums.Checksum;
 import org.junit.Assert;
@@ -19,9 +18,8 @@ public class BaseProtocolEncoderTests {
     byte bSrc = 100;
     long bPktId = 287643;
 
-
     @Test
-    public void doesMessageSerializationHasCorrectParameter_CType() {
+    public void messageSerialization_HasCorrectParameter_CType() {
         byte[] payload = this.encoder.serializeMessage(apples, cType, bUserId);
 
         int cTypeSerialized = ByteBuffer.wrap(payload, 0, 4).getInt();
@@ -30,7 +28,7 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesMessageSerializationHasCorrectParameter_BUserId() {
+    public void messageSerialization_HasCorrectParameter_BUserId() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
 
         int bUserIdSerialized = ByteBuffer.wrap(payload, 4, 8).getInt();
@@ -39,7 +37,7 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesMessageSerializationHasCorrect_Payload() {
+    public void messageSerialization_HasCorrect_Payload() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
 
         byte[] stringBytes = new byte[payload.length - 8];
@@ -50,7 +48,7 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesPacketCreationHasCorrect_MagicByte() {
+    public void packetCreation_HasCorrect_MagicByte() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
@@ -62,7 +60,7 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesPacketCreationHasCorrect_bSrc() {
+    public void packetCreation_HasCorrect_bSrc() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
@@ -73,7 +71,7 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesPacketCreationHasCorrect_bPktId() {
+    public void packetCreation_HasCorrect_bPktId() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
@@ -84,7 +82,7 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesPacketCreationHasCorrect_payloadLength() {
+    public void packetCreation_HasCorrect_payloadLength() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
@@ -95,28 +93,27 @@ public class BaseProtocolEncoderTests {
     }
 
     @Test
-    public void doesPacketCreationHasCorrect_headersChecksum() {
+    public void packetCreation_HasCorrect_headersChecksum() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         int headersBytesLength = 14;
         int received_headersChecksum = ByteBuffer.wrap(packet, headersBytesLength, 4).getInt();
-        byte[] received_headers = Arrays.copyOfRange(packet, 0, headersBytesLength);;
+        byte[] received_headers = Arrays.copyOfRange(packet, 0, headersBytesLength);
+        ;
         int checksum1 = checksumCalculator.computeChecksum(received_headers);
 
         Assert.assertEquals(checksum1, received_headersChecksum);
     }
 
     @Test
-    public void doesPacketCreationHasCorrect_messageChecksum() {
+    public void packetCreation_HasCorrect_messageChecksum() {
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
-        int messageLength = ByteBuffer.wrap(packet, 10, 4).getInt();
-        System.out.println(messageLength);
-        int receivedMessageChecksum = ByteBuffer.wrap(packet, packet.length-4, 4).getInt();
+        int receivedMessageChecksum = ByteBuffer.wrap(packet, packet.length - 4, 4).getInt();
         int checksum2 = checksumCalculator.computeChecksum(encryptedPayload);
 
         Assert.assertEquals(checksum2, receivedMessageChecksum);

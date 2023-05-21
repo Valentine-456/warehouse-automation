@@ -8,9 +8,6 @@ import java.nio.ByteBuffer;
 public class BaseProtocolDecoder implements ProtocolDecoder {
     Checksum checksum;
 
-
-// TODO: edit all transfers of int to baos
-
     public BaseProtocolDecoder(Checksum checksum) {
         this.checksum = checksum;
     }
