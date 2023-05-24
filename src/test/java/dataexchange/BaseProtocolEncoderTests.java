@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 public class BaseProtocolEncoderTests {
@@ -17,6 +18,8 @@ public class BaseProtocolEncoderTests {
     int bUserId = 10;
     byte bSrc = 100;
     long bPktId = 287643;
+    SecureRandom secureRandom = new SecureRandom();
+
 
     @Test
     public void messageSerialization_HasCorrectParameter_CType() {
@@ -49,8 +52,11 @@ public class BaseProtocolEncoderTests {
 
     @Test
     public void packetCreation_HasCorrect_MagicByte() {
+        byte[] keyBytes = new byte[16];
+        secureRandom.nextBytes(keyBytes);
+
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-        byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+        byte[] encryptedPayload = encoder.encryptMessage(payload, keyBytes);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         byte magicByte = 0x13;
@@ -61,8 +67,11 @@ public class BaseProtocolEncoderTests {
 
     @Test
     public void packetCreation_HasCorrect_bSrc() {
+        byte[] keyBytes = new byte[16];
+        secureRandom.nextBytes(keyBytes);
+
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-        byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+        byte[] encryptedPayload = encoder.encryptMessage(payload, keyBytes);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         byte received_bSRC = packet[1];
@@ -72,8 +81,11 @@ public class BaseProtocolEncoderTests {
 
     @Test
     public void packetCreation_HasCorrect_bPktId() {
+        byte[] keyBytes = new byte[16];
+        secureRandom.nextBytes(keyBytes);
+
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-        byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+        byte[] encryptedPayload = encoder.encryptMessage(payload, keyBytes);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         long received_bPktId = ByteBuffer.wrap(packet, 2, Long.BYTES).getLong();
@@ -83,19 +95,25 @@ public class BaseProtocolEncoderTests {
 
     @Test
     public void packetCreation_HasCorrect_payloadLength() {
+        byte[] keyBytes = new byte[16];
+        secureRandom.nextBytes(keyBytes);
+
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-        byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+        byte[] encryptedPayload = encoder.encryptMessage(payload, keyBytes);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         int payloadLength = ByteBuffer.wrap(packet, 10, Integer.BYTES).getInt();
 
-        Assert.assertEquals(payloadLength, payload.length);
+        Assert.assertEquals(payloadLength, encryptedPayload.length);
     }
 
     @Test
     public void packetCreation_HasCorrect_headersChecksum() {
+        byte[] keyBytes = new byte[16];
+        secureRandom.nextBytes(keyBytes);
+
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-        byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+        byte[] encryptedPayload = encoder.encryptMessage(payload, keyBytes);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         int headersBytesLength = 14;
@@ -109,8 +127,11 @@ public class BaseProtocolEncoderTests {
 
     @Test
     public void packetCreation_HasCorrect_messageChecksum() {
+        byte[] keyBytes = new byte[16];
+        secureRandom.nextBytes(keyBytes);
+
         byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-        byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+        byte[] encryptedPayload = encoder.encryptMessage(payload, keyBytes);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
         int receivedMessageChecksum = ByteBuffer.wrap(packet, packet.length - 4, 4).getInt();

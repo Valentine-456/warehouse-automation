@@ -17,9 +17,9 @@ public class BaseProtocolDecoderTests {
     int bUserId = 10;
     byte bSrc = 100;
     long bPktId = 287643;
-
+    byte[] encryptionKey = new byte[]{0x63, (byte) 0x9a, (byte) 0xfc, (byte) 0x94, 0x36, (byte) 0xba, 0x33, 0x47, 0x63, 0x21, (byte) 0xd9, (byte) 0xe4, 0x35, (byte) 0x90, (byte) 0x9f, (byte) 0xf4};
     byte[] payload = encoder.serializeMessage(apples, cType, bUserId);
-    byte[] encryptedPayload = encoder.encryptMessage(payload, new byte[]{});
+    byte[] encryptedPayload = encoder.encryptMessage(payload, encryptionKey);
     byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
     @Test
@@ -61,7 +61,7 @@ public class BaseProtocolDecoderTests {
     public void deserializeMessage_UnpacksParametersCorrectly() {
         PacketParsed packetParsed = decoder.parsePacket(packet);
         decoder.verifyChecksums(packetParsed);
-        byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, new byte[]{});
+        byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, encryptionKey);
         MessageDeserialized message = decoder.deserializeMessage(decryptedPayload);
 
         Assert.assertEquals(message.bUserId, bUserId);
@@ -72,7 +72,7 @@ public class BaseProtocolDecoderTests {
     public void deserializeMessage_JsonToPOJO_ObjectsHaveSameValues() {
         PacketParsed packetParsed = decoder.parsePacket(packet);
         decoder.verifyChecksums(packetParsed);
-        byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, new byte[]{});
+        byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, encryptionKey);
         MessageDeserialized message = decoder.deserializeMessage(decryptedPayload);
 
         ProductPOJO applesReceived = (ProductPOJO) message.pojo;

@@ -3,10 +3,16 @@ package dataexchange;
 import com.cedarsoftware.util.io.JsonWriter;
 import dataexchange.ckecksums.Checksum;
 
+import javax.crypto.*;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public class BaseProtocolEncoder implements ProtocolEncoder {
     Checksum checksum;
@@ -40,7 +46,16 @@ public class BaseProtocolEncoder implements ProtocolEncoder {
 
     @Override
     public byte[] encryptMessage(byte[] data, byte[] key) {
-        return data;
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            SecretKey secretKey = new SecretKeySpec(key, "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(128, new byte[16]));
+            return cipher.doFinal(data);
+
+        } catch (IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | NoSuchAlgorithmException |
+                 InvalidKeyException | InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

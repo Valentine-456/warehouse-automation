@@ -3,7 +3,13 @@ package dataexchange;
 import com.cedarsoftware.util.io.JsonReader;
 import dataexchange.ckecksums.Checksum;
 
+import javax.crypto.*;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public class BaseProtocolDecoder implements ProtocolDecoder {
     Checksum checksum;
@@ -41,7 +47,16 @@ public class BaseProtocolDecoder implements ProtocolDecoder {
 
     @Override
     public byte[] decryptMessage(byte[] data, byte[] key) {
-        return data;
+        try {
+            Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            SecretKey secretKey = new SecretKeySpec(key, "AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, new byte[16]));
+            return cipher.doFinal(data);
+
+        } catch (IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | NoSuchAlgorithmException |
+                 InvalidKeyException | InvalidAlgorithmParameterException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
