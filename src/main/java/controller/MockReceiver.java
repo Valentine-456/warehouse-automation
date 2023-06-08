@@ -6,15 +6,18 @@ import dataexchange.ProtocolEncoder;
 import dataexchange.ckecksums.CRC16Checksum;
 
 import java.util.Random;
+import java.util.concurrent.CompletionService;
 
 public class MockReceiver implements Receiver {
     private final Decryptor decryptor;
     ProtocolEncoder encoder = new BaseProtocolEncoder(new CRC16Checksum());
     ProductPOJO pojo = new ProductPOJO("Apples Golden", "Fruits&Vegetables", 1.99);
     Random random = new Random();
+    CompletionService threadPoolExecutor;
 
-    public MockReceiver(Decryptor decryptor) {
+    public MockReceiver(Decryptor decryptor, CompletionService executor) {
         this.decryptor = decryptor;
+        this.threadPoolExecutor = executor;
     }
 
     @Override
@@ -29,6 +32,9 @@ public class MockReceiver implements Receiver {
         long bPktId = random.nextLong(0, 1000000);
         byte[] packet = encoder.createPacket(encryptedPayload, bSrc, bPktId);
 
-        decryptor.decrypt(packet);
+        this.threadPoolExecutor.submit(() -> {
+            decryptor.decrypt(packet);
+            return 0;
+        });
     }
 }
