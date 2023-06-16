@@ -10,13 +10,13 @@ public interface ProtocolDecoder {
     public MessageDeserialized deserializeMessage(byte[] data);
 
     class PacketParsed {
-        byte[] rawHeaders;
-        byte bSrc;
-        long bPktId;
+        public byte[] rawHeaders;
+        public byte bSrc;
+        public long bPktId;
 
-        byte[] messageEncrypted;
-        int headersChecksum;
-        int payloadChecksum;
+        public byte[] messageEncrypted;
+        public int headersChecksum;
+        public int payloadChecksum;
 
         public PacketParsed(
                 byte[] rawHeaders,
@@ -36,9 +36,9 @@ public interface ProtocolDecoder {
     }
 
     class MessageDeserialized {
-        Object pojo;
-        int cType;
-        int bUserId;
+        public Object pojo;
+        public int cType;
+        public int bUserId;
 
         public MessageDeserialized(Object pojo, int cType, int bUserId) {
             this.bUserId = bUserId;
