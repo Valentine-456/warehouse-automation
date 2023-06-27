@@ -4,6 +4,7 @@ import com.cedarsoftware.util.io.JsonWriter;
 import controller.Command;
 import dataexchange.*;
 import dataexchange.ckecksums.CRC16Checksum;
+import dbService.StorePOJO;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -23,13 +24,13 @@ public class StoreUDPClient {
         this.bSrc = bSrc;
     }
 
-    public void sendMessage() {
+    public void sendMessage(StorePOJO storePOJO, Command command) {
         DatagramSocket socket = null;
         try {
             socket = new DatagramSocket();
             socket.setSoTimeout(10000);
             // send request
-            byte[] buf = this.createMessage();
+            byte[] buf = this.createMessage(storePOJO, command);
 
             InetAddress address = InetAddress.getByName(null);
             DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4445);
@@ -66,11 +67,10 @@ public class StoreUDPClient {
     }
 
 
-    public byte[] createMessage() {
-        ProductPOJO apples = new ProductPOJO("Apples Golden", "Fruits&Vegetables", 1.99);
+    public byte[] createMessage(StorePOJO storePOJO, Command command) {
         byte[] serializedMessage = encoder.serializeMessage(
-                apples,
-                Command.GET_INVENTORY_QUANTITY.getCommandCode(),
+                storePOJO,
+                command.getCommandCode(),
                 this.bUserId
         );
         byte[] messageEncrypted = encoder.encryptMessage(serializedMessage, encryptionKey);
