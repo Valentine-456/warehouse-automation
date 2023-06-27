@@ -1,7 +1,5 @@
 package dataexchange;
 
-import dataexchange.ProtocolDecoder.MessageDeserialized;
-import dataexchange.ProtocolDecoder.PacketParsed;
 import dataexchange.ckecksums.CRC16Checksum;
 import dataexchange.ckecksums.Checksum;
 import org.junit.Assert;

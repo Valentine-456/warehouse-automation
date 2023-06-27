@@ -1,7 +1,13 @@
 package controller;
 
+import dataexchange.PacketParsed;
 import dataexchange.ProtocolDecoder;
-import dataexchange.ProtocolDecoder.MessageDeserialized;
+import dataexchange.Request;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class Decryptor {
     Processor processor;
@@ -14,15 +20,28 @@ public class Decryptor {
     }
 
     public void decrypt(byte[] message) {
-        ProtocolDecoder.PacketParsed packetParsed = decoder.parsePacket(message);
-        boolean isChecksumCorrect = decoder.verifyChecksums(packetParsed);
-        if (!isChecksumCorrect) {
-            this.processor.process(null);
-            return;
+        try {
+            byte[] inetAddressBytes = Arrays.copyOfRange(message, 0, 4);
+            byte[] portBytes = Arrays.copyOfRange(message, 4, 8);
+            int port = ByteBuffer.wrap(portBytes).getInt();
+            byte[] packetData = Arrays.copyOfRange(message, 8, message.length);
+
+            Request request = new Request(InetAddress.getByAddress(inetAddressBytes), port);
+            PacketParsed packetParsed = decoder.parsePacket(packetData);
+            request.packetParsed = packetParsed;
+
+            boolean isChecksumCorrect = decoder.verifyChecksums(packetParsed);
+            if (!isChecksumCorrect) {
+                this.processor.process(request);
+                return;
+            }
+
+            byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, keyBytes);
+            request.messageDeserialized = decoder.deserializeMessage(decryptedPayload);
+            this.processor.process(request);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
         }
 
-        byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, keyBytes);
-        MessageDeserialized info = decoder.deserializeMessage(decryptedPayload);
-        this.processor.process(info);
     }
 }

@@ -1,5 +1,5 @@
 package dataexchange.ckecksums;
 
 public interface Checksum {
-    public int computeChecksum(byte[] data);
+    int computeChecksum(byte[] data);
 }

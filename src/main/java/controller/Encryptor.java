@@ -1,6 +1,7 @@
 package controller;
 
-import dataexchange.ProtocolDecoder.MessageDeserialized;
+import dataexchange.MessageDeserialized;
+import dataexchange.PacketParsed;
 import dataexchange.ProtocolEncoder;
 
 public class Encryptor {
@@ -11,12 +12,9 @@ public class Encryptor {
         this.encoder = encoder;
     }
 
-    public byte[] encrypt(MessageDeserialized message) {
+    public byte[] encrypt(MessageDeserialized message, PacketParsed packetParsed) {
         byte[] payload = encoder.serializeMessage(message.pojo, message.cType, message.bUserId);
         byte[] encryptedPayload = encoder.encryptMessage(payload, this.keyBytes);
-
-        byte bSrc = (byte) 1;
-        long bPktId = 1000;
-        return encoder.createPacket(encryptedPayload, bSrc, bPktId);
+        return encoder.createPacket(encryptedPayload, packetParsed.bSrc, packetParsed.bPktId);
     }
 }

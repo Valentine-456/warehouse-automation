@@ -1,10 +1,11 @@
 package controller;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 public class MockSender implements Sender {
     @Override
-    public void send(byte[] message, InetAddress target) {
+
+    public void send(byte[] message, InetSocketAddress target) {
         System.out.println("Message sent!");
     }
 }

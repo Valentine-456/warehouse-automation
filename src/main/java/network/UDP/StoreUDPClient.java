@@ -1,9 +1,8 @@
 package network.UDP;
 
+import com.cedarsoftware.util.io.JsonWriter;
 import controller.Command;
-import dataexchange.BaseProtocolEncoder;
-import dataexchange.ProductPOJO;
-import dataexchange.ProtocolEncoder;
+import dataexchange.*;
 import dataexchange.ckecksums.CRC16Checksum;
 
 import java.io.IOException;
@@ -13,7 +12,8 @@ import java.net.InetAddress;
 
 public class StoreUDPClient {
     byte[] encryptionKey = new byte[]{0x63, (byte) 0x9a, (byte) 0xfc, (byte) 0x94, 0x36, (byte) 0xba, 0x33, 0x47, 0x63, 0x21, (byte) 0xd9, (byte) 0xe4, 0x35, (byte) 0x90, (byte) 0x9f, (byte) 0xf4};
-    private ProtocolEncoder encoder = new BaseProtocolEncoder(new CRC16Checksum());
+    private final ProtocolEncoder encoder = new BaseProtocolEncoder(new CRC16Checksum());
+    private final ProtocolDecoder decoder = new BaseProtocolDecoder(new CRC16Checksum());
     int bPktId = 1;
     int bUserId;
     byte bSrc;
@@ -42,13 +42,27 @@ public class StoreUDPClient {
 
             // display response
             byte[] response = packet.getData();
-            System.out.println(new String(response, 0,30));
+            this.receiveMessage(response);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             if (socket != null) socket.close();
         }
+    }
+
+    private void receiveMessage(byte[] response) {
+        PacketParsed packetParsed = decoder.parsePacket(response);
+        boolean isChecksumCorrect = decoder.verifyChecksums(packetParsed);
+        if (!isChecksumCorrect) {
+            System.err.println("Checksum is not correct");
+        }
+        byte[] decryptedPayload = decoder.decryptMessage(packetParsed.messageEncrypted, this.encryptionKey);
+        MessageDeserialized message = decoder.deserializeMessage(decryptedPayload);
+        if (message.bUserId == this.bUserId && this.bSrc == packetParsed.bSrc) {
+            System.out.println(JsonWriter.objectToJson(message.pojo));
+        } else System.out.println("Wrong packet received!");
+
     }
 
 
