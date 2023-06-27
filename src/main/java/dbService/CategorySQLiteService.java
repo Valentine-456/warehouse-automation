@@ -3,17 +3,14 @@ package dbService;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class ProductSQLiteService implements DBService {
-    private Connection con;
+public class CategorySQLiteService implements DBService {
+    Connection con;
 
     private void initTable() {
         try {
-            PreparedStatement st = con.prepareStatement("create table if not exists 'Product' (" +
+            PreparedStatement st = con.prepareStatement("create table if not exists 'Category' (" +
                     "'name' TEXT PRIMARY KEY,\n" +
-                    "'description' TEXT,\n" +
-                    "'manufacturer' TEXT,\n" +
-                    "'quantity' INTEGER NOT NULL,\n" +
-                    "'price' DECIMAL(10, 2) NOT NULL" +
+                    "'description' TEXT\n" +
                     ");");
             int result = st.executeUpdate();
         } catch (SQLException e) {
@@ -22,12 +19,12 @@ public class ProductSQLiteService implements DBService {
         }
     }
 
-    public ProductSQLiteService(Connection con) {
+    public CategorySQLiteService(Connection con) {
         this.con = con;
         this.initTable();
     }
 
-    public ProductSQLiteService(String name) {
+    public CategorySQLiteService(String name) {
         try {
             Class.forName("org.sqlite.JDBC");
             con = DriverManager.getConnection("jdbc:sqlite:" + name);
@@ -41,20 +38,16 @@ public class ProductSQLiteService implements DBService {
             e.printStackTrace();
         }
     }
-
     @Override
-    public ArrayList<Product> read() {
-        ArrayList<Product> rows = new ArrayList<>();
+    public ArrayList read() {
+        ArrayList<Category> rows = new ArrayList<>();
         try {
             Statement st = con.createStatement();
-            ResultSet res = st.executeQuery("SELECT * FROM Product");
+            ResultSet res = st.executeQuery("SELECT * FROM Category");
             while (res.next()) {
-                Product product = new Product(res.getString("name"));
-                product.description = res.getString("description");
-                product.manufacturer = res.getString("manufacturer");
-                product.setQuantity(res.getInt("quantity"));
-                product.setPrice(res.getBigDecimal("price"));
-                rows.add(product);
+                Category category = new Category(res.getString("name"));
+                category.description = res.getString("description");
+                rows.add(category);
             }
             res.close();
             st.close();
@@ -67,17 +60,14 @@ public class ProductSQLiteService implements DBService {
 
     @Override
     public void create(Object obj) {
-        Product product = (Product) obj;
+        Category category = (Category) obj;
         try {
             PreparedStatement statement = con.prepareStatement(
-                    "INSERT INTO Product (name, description, manufacturer, quantity, price)\n" +
-                            "VALUES (?, ?, ?, ?, ?);"
+                    "INSERT INTO Category (name, description)\n" +
+                            "VALUES (?, ?);"
             );
-            statement.setString(1, product.name);
-            statement.setString(2, product.description);
-            statement.setString(3, product.manufacturer);
-            statement.setInt(4, product.getQuantity());
-            statement.setBigDecimal(5, product.getPrice());
+            statement.setString(1, category.name);
+            statement.setString(2, category.description);
 
             int result = statement.executeUpdate();
             statement.close();
@@ -89,21 +79,15 @@ public class ProductSQLiteService implements DBService {
 
     @Override
     public void update(Object obj) {
-        Product product = (Product) obj;
+        Category category = (Category) obj;
         try {
             PreparedStatement statement = con.prepareStatement(
-                    "UPDATE Product SET " +
-                            "description = ?, " +
-                            "manufacturer = ?, " +
-                            "quantity = ?, " +
-                            "price = ? " +
+                    "UPDATE Category SET " +
+                            "description = ? " +
                             "WHERE name = ? ;"
             );
-            statement.setString(1, product.description);
-            statement.setString(2, product.manufacturer);
-            statement.setInt(3, product.getQuantity());
-            statement.setBigDecimal(4, product.getPrice());
-            statement.setString(5, product.name);
+            statement.setString(1, category.description);
+            statement.setString(2, category.name);
 
             int result = statement.executeUpdate();
             statement.close();
@@ -115,11 +99,11 @@ public class ProductSQLiteService implements DBService {
 
     @Override
     public void delete(Object obj) {
-        Product product = (Product) obj;
+        Category category = (Category) obj;
         try {
             PreparedStatement statement = con.prepareStatement(
-                    "DELETE FROM Product WHERE name = ? ;");
-            statement.setString(1, product.name);
+                    "DELETE FROM Category WHERE name = ? ;");
+            statement.setString(1, category.name);
             int result = statement.executeUpdate();
             statement.close();
         } catch (SQLException e) {
@@ -129,22 +113,19 @@ public class ProductSQLiteService implements DBService {
     }
 
     @Override
-    public Object findOne(String primaryKeyValue) {
-        ArrayList<Product> rows = new ArrayList<>();
+    public Object findOne(String key) {
+        ArrayList<Category> rows = new ArrayList<>();
         try {
             PreparedStatement statement = con.prepareStatement(
-                    "SELECT * FROM Product WHERE name = ? ;"
+                    "SELECT * FROM Category WHERE name = ? ;"
             );
-            statement.setString(1, primaryKeyValue);
+            statement.setString(1, key);
             ResultSet res = statement.executeQuery();
 
             while (res.next()) {
-                Product product = new Product(res.getString("name"));
-                product.description = res.getString("description");
-                product.manufacturer = res.getString("manufacturer");
-                product.setQuantity(res.getInt("quantity"));
-                product.setPrice(res.getBigDecimal("price"));
-                rows.add(product);
+                Category category = new Category(res.getString("name"));
+                category.description = res.getString("description");
+                rows.add(category);
             }
             res.close();
             statement.close();
@@ -158,17 +139,14 @@ public class ProductSQLiteService implements DBService {
 
     @Override
     public ArrayList listByCriteria(String filter) {
-        ArrayList<Product> rows = new ArrayList<>();
+        ArrayList<Category> rows = new ArrayList<>();
         try {
             Statement st = con.createStatement();
-            ResultSet res = st.executeQuery("SELECT * FROM Product WHERE " + filter + " ;");
+            ResultSet res = st.executeQuery("SELECT * FROM Category WHERE " + filter + " ;");
             while (res.next()) {
-                Product product = new Product(res.getString("name"));
-                product.description = res.getString("description");
-                product.manufacturer = res.getString("manufacturer");
-                product.setQuantity(res.getInt("quantity"));
-                product.setPrice(res.getBigDecimal("price"));
-                rows.add(product);
+                Category category = new Category(res.getString("name"));
+                category.description = res.getString("description");
+                rows.add(category);
             }
             res.close();
             st.close();

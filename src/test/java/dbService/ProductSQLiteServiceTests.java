@@ -99,7 +99,6 @@ public class ProductSQLiteServiceTests {
             service.create(product1);
         }
         ArrayList<Product> filteredProducts = service.listByCriteria(" quantity >= 100 ");
-        System.out.println(filteredProducts);
 
         Assert.assertEquals(filteredProducts.size(), 10);
         clean();
