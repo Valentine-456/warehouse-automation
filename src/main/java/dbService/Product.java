@@ -7,9 +7,9 @@ public class Product {
         this.name = name;
     }
 
-    String name;
-    String description = "";
-    String manufacturer = "";
+    public String name;
+    public String description = "";
+    public String manufacturer = "";
     private int quantity = 0;
     private BigDecimal price = BigDecimal.ZERO;
 

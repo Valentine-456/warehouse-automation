@@ -2,6 +2,8 @@ package controller;
 
 import dataexchange.MessageDeserialized;
 import dataexchange.Request;
+import dbService.DBSQLServiceFacade;
+import dbService.StorePOJO;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -9,6 +11,7 @@ import java.net.InetSocketAddress;
 public class Processor {
     Encryptor encryptor;
     Sender sender;
+    DBSQLServiceFacade db = new DBSQLServiceFacade("Store");
 
     public Processor(Encryptor encryptor, Sender sender) {
         this.encryptor = encryptor;
@@ -36,24 +39,41 @@ public class Processor {
             sender.send(responsePayload, socketAddress);
             return;
         }
-        String response = "Ok! Message Received " + messageDeserialized.bUserId;
+
+        int response = this.handleRequest(messageDeserialized);
+
         MessageDeserialized responseMessage =
                 new MessageDeserialized(response, messageDeserialized.cType, messageDeserialized.bUserId);
         byte[] responsePayload = this.encryptor.encrypt(responseMessage, request.packetParsed);
         this.sender.send(responsePayload, socketAddress);
     }
 
-//    public void process(MessageDeserialized messageDeserialized) {
-//        if (messageDeserialized == null) try {
-//            throw new Exception("Damaged or tampered packet received");
-//        } catch (Exception e) {
-//            sender.send(new byte[]{}, null);
-//            return;
-//        }
-//        String response = "Ok! Message Received";
-//        MessageDeserialized responseMessage =
-//                new MessageDeserialized(response, messageDeserialized.cType, messageDeserialized.bUserId);
-//        byte[] responsePayload = this.encryptor.encrypt(responseMessage);
-//        this.sender.send(responsePayload, null);
-//    }
+    //TODO: add exception handler and return status -1
+    public int handleRequest(MessageDeserialized messageDeserialized) {
+        int cType = messageDeserialized.cType;
+        StorePOJO storePOJO = (StorePOJO) messageDeserialized.pojo;
+        int response = 0;
+
+        switch (cType) {
+            case 0:
+                response = this.db.GET_INVENTORY_QUANTITY(storePOJO);
+                break;
+            case 1:
+                this.db.DEDUCT_INVENTORY(storePOJO);
+                break;
+            case 2:
+                this.db.ADD_INVENTORY(storePOJO);
+                break;
+            case 3:
+                this.db.ADD_PRODUCT_GROUP(storePOJO);
+                break;
+            case 4:
+                this.db.ADD_PRODUCT_NAME_TO_GROUP(storePOJO);
+                break;
+            case 5:
+                this.db.SET_PRODUCT_PRICE(storePOJO);
+                break;
+        }
+        return response;
+    }
 }

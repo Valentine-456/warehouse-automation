@@ -4,8 +4,12 @@ import com.cedarsoftware.util.io.JsonWriter;
 import controller.Command;
 import dataexchange.*;
 import dataexchange.ckecksums.CRC16Checksum;
+import dbService.Category;
+import dbService.Product;
+import dbService.StorePOJO;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -67,9 +71,15 @@ public class StoreUDPClient {
 
 
     public byte[] createMessage() {
-        ProductPOJO apples = new ProductPOJO("Apples Golden", "Fruits&Vegetables", 1.99);
+        Product product = new Product("Plums");
+        product.setPrice(BigDecimal.valueOf(19.9));
+        product.setQuantity(30);
+
+        Category category = new Category("Fruits");
+        StorePOJO storePOJO = new StorePOJO("Plums", null, 10, product);
+//        ProductPOJO apples = new ProductPOJO("Apples Golden", "Fruits&Vegetables", 1.99);
         byte[] serializedMessage = encoder.serializeMessage(
-                apples,
+                storePOJO,
                 Command.GET_INVENTORY_QUANTITY.getCommandCode(),
                 this.bUserId
         );
