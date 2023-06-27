@@ -11,7 +11,6 @@ import java.net.InetSocketAddress;
 public class Processor {
     Encryptor encryptor;
     Sender sender;
-    DBSQLServiceFacade db = new DBSQLServiceFacade("Store");
 
     public Processor(Encryptor encryptor, Sender sender) {
         this.encryptor = encryptor;
@@ -48,32 +47,37 @@ public class Processor {
         this.sender.send(responsePayload, socketAddress);
     }
 
-    //TODO: add exception handler and return status -1
     public int handleRequest(MessageDeserialized messageDeserialized) {
+        DBSQLServiceFacade db = new DBSQLServiceFacade("store.db");
         int cType = messageDeserialized.cType;
         StorePOJO storePOJO = (StorePOJO) messageDeserialized.pojo;
         int response = 0;
 
-        switch (cType) {
-            case 0:
-                response = this.db.GET_INVENTORY_QUANTITY(storePOJO);
-                break;
-            case 1:
-                this.db.DEDUCT_INVENTORY(storePOJO);
-                break;
-            case 2:
-                this.db.ADD_INVENTORY(storePOJO);
-                break;
-            case 3:
-                this.db.ADD_PRODUCT_GROUP(storePOJO);
-                break;
-            case 4:
-                this.db.ADD_PRODUCT_NAME_TO_GROUP(storePOJO);
-                break;
-            case 5:
-                this.db.SET_PRODUCT_PRICE(storePOJO);
-                break;
+        try {
+            switch (cType) {
+                case 0:
+                    response = db.GET_INVENTORY_QUANTITY(storePOJO);
+                    break;
+                case 1:
+                    db.DEDUCT_INVENTORY(storePOJO);
+                    break;
+                case 2:
+                    db.ADD_INVENTORY(storePOJO);
+                    break;
+                case 3:
+                    db.ADD_PRODUCT_GROUP(storePOJO);
+                    break;
+                case 4:
+                    db.ADD_PRODUCT_NAME_TO_GROUP(storePOJO);
+                    break;
+                case 5:
+                    db.SET_PRODUCT_PRICE(storePOJO);
+                    break;
+            }
+            return response;
+        } catch (Exception e) {
+            System.err.println(e);
+            return -1;
         }
-        return response;
     }
 }

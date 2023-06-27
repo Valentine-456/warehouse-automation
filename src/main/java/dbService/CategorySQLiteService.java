@@ -38,6 +38,7 @@ public class CategorySQLiteService implements DBService {
             e.printStackTrace();
         }
     }
+
     @Override
     public ArrayList read() {
         ArrayList<Category> rows = new ArrayList<>();

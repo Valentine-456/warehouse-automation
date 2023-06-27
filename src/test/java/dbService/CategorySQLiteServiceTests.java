@@ -1,9 +1,11 @@
 package dbService;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class CategorySQLiteServiceTests {

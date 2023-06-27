@@ -29,7 +29,7 @@ public class DBSQLServiceFacade {
     public int GET_INVENTORY_QUANTITY(StorePOJO storePOJO) {
         String productName = storePOJO.productName;
         Product product = (Product) this.productService.findOne(productName);
-        if(product != null) {
+        if (product != null) {
             return product.getQuantity();
         }
         return 0;
