@@ -1,7 +1,8 @@
 package controller;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 public interface Sender {
-    void send(byte[] message, InetAddress target);
+    // TODO: change parameter to InetSocketAddress
+    void send(byte[] message, InetSocketAddress target);
 }

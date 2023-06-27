@@ -1,9 +1,9 @@
 package dataexchange;
 
 public interface ProtocolEncoder {
-    public byte[] serializeMessage(Object pojo, int cType, int bUserId);
+    byte[] serializeMessage(Object pojo, int cType, int bUserId);
 
-    public byte[] encryptMessage(byte[] data, byte[] key);
+    byte[] encryptMessage(byte[] data, byte[] key);
 
-    public byte[] createPacket(byte[] data, byte bSrc, long bPktId);
+    byte[] createPacket(byte[] data, byte bSrc, long bPktId);
 }
