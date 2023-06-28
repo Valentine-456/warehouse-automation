@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dbService.Product;
 import dbService.ProductSQLiteService;
+import network.HTTP.HandleCommonHTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,10 +34,10 @@ public class APIHandler implements HttpHandler {
             } else if (Objects.equals(method, "PUT") && Objects.equals(path, "/api/good")) {
                 this.handleCreateProduct(exchange);
             } else {
-                this.handleNotFound(exchange);
+                HandleCommonHTTP.handleNotFound(exchange);
             }
         } catch (Exception e) {
-            this.handleInternalServerError(exchange, e);
+            HandleCommonHTTP.handleInternalServerError(exchange, e);
         }
     }
 
@@ -44,14 +45,14 @@ public class APIHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] pathSplit = path.split("/");
         if (pathSplit.length != 4) {
-            this.handleBadRequest(exchange);
+            HandleCommonHTTP.handleBadRequest(exchange);
             return;
         }
         String productName = pathSplit[3];
         ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
         Product product = (Product) productService.findOne(productName);
         if (product == null) {
-            this.handleNotFound(exchange);
+            HandleCommonHTTP.handleNotFound(exchange);
         } else {
             byte[] responseBytes = JsonWriter.objectToJson(product).getBytes(StandardCharsets.UTF_8);
             OutputStream os = exchange.getResponseBody();
@@ -78,7 +79,7 @@ public class APIHandler implements HttpHandler {
         boolean quantityIsEmpty = quantity == null || quantity < 0;
         boolean priceIsEmpty = priceStr == null || priceStr.isBlank();
         if (nameIsEmpty || priceIsEmpty || quantityIsEmpty) {
-            this.handleBadRequest(exchange);
+            HandleCommonHTTP.handleConflict(exchange);
             return;
         }
 
@@ -96,8 +97,7 @@ public class APIHandler implements HttpHandler {
         OutputStream os = exchange.getResponseBody();
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         if (createdProduct == null) {
-            exchange.sendResponseHeaders(409, 0);
-            os.close();
+            HandleCommonHTTP.handleConflict(exchange);
             return;
         }
         byte[] responseBytes = JsonWriter.objectToJson(createdProduct).getBytes();
@@ -111,7 +111,7 @@ public class APIHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] pathSplit = path.split("/");
         if (pathSplit.length != 4) {
-            this.handleBadRequest(exchange);
+            HandleCommonHTTP.handleBadRequest(exchange);
             return;
         }
         String productName = pathSplit[3];
@@ -128,7 +128,7 @@ public class APIHandler implements HttpHandler {
         boolean quantityIsEmpty = quantity == null || quantity < 0;
         boolean priceIsEmpty = priceStr == null || priceStr.isBlank();
         if (priceIsEmpty || quantityIsEmpty) {
-            this.handleBadRequest(exchange);
+            HandleCommonHTTP.handleConflict(exchange);
             return;
         }
 
@@ -137,7 +137,7 @@ public class APIHandler implements HttpHandler {
         ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
         Product product = (Product) productService.findOne(productName);
         if (product == null) {
-            this.handleNotFound(exchange);
+            HandleCommonHTTP.handleNotFound(exchange);
             return;
         }
 
@@ -157,7 +157,7 @@ public class APIHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] pathSplit = path.split("/");
         if (pathSplit.length != 4) {
-            this.handleBadRequest(exchange);
+            HandleCommonHTTP.handleBadRequest(exchange);
             return;
         }
         String productName = pathSplit[3];
@@ -165,34 +165,13 @@ public class APIHandler implements HttpHandler {
         ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
         Product product = (Product) productService.findOne(productName);
         if (product == null) {
-            this.handleNotFound(exchange);
+            HandleCommonHTTP.handleNotFound(exchange);
             return;
         }
         productService.delete(product);
         OutputStream os = exchange.getResponseBody();
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(204, 0);
-        os.close();
-    }
-
-    private void handleNotFound(HttpExchange exchange) throws IOException {
-        exchange.sendResponseHeaders(404, 0);
-        OutputStream os = exchange.getResponseBody();
-        os.close();
-    }
-
-    private void handleBadRequest(HttpExchange exchange) throws IOException {
-        exchange.sendResponseHeaders(400, 0);
-        OutputStream os = exchange.getResponseBody();
-        os.close();
-    }
-
-    private void handleInternalServerError(HttpExchange exchange, Exception e) throws IOException {
-        e.printStackTrace();
-        exchange.sendResponseHeaders(500, e.getMessage().getBytes().length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(e.getMessage().getBytes());
-        os.flush();
         os.close();
     }
 }
