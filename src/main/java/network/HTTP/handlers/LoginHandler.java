@@ -32,7 +32,7 @@ public class LoginHandler implements HttpHandler {
         String passwordParam = queryParams.get("password");
 
         boolean isLoggedIn = this.loginUser(loginParam, passwordParam);
-        if(!isLoggedIn) {
+        if (!isLoggedIn) {
             exchange.sendResponseHeaders(401, 0);
             os.close();
             return;

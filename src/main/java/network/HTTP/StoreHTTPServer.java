@@ -33,7 +33,7 @@ public class StoreHTTPServer {
 
     private void addHandlers() {
         HttpContext loginContext = this.server.createContext("/login", new LoginHandler());
-        HttpContext APIContext = this.server.createContext("/api", new EchoHandler());
+        HttpContext APIContext = this.server.createContext("/api", new APIHandler());
         HttpContext staticContext = this.server.createContext("/static", new EchoHandler());
         APIContext.setAuthenticator(new AuthIsLoggedIn());
     }
