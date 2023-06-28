@@ -2,6 +2,7 @@ package network.HTTP.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import network.HTTP.JWTService;
 import network.HTTP.UtilHTTP;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.Objects;
 public class LoginHandler implements HttpHandler {
     private final String systemLogin = "root";
     private final String systemPassword = "root";
+    private JWTService jwtService = new JWTService();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -36,9 +38,9 @@ public class LoginHandler implements HttpHandler {
             return;
         }
 
-
+        String jwtToken = this.jwtService.sign(this.systemLogin);
         byte[] bytes = "OK!".getBytes();
-        exchange.getResponseHeaders().add("Authorization", "Bearer token");
+        exchange.getResponseHeaders().add("Authorization", "Bearer " + jwtToken);
 
         exchange.sendResponseHeaders(200, bytes.length);
         os.write(bytes);
