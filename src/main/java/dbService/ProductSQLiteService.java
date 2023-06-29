@@ -2,6 +2,7 @@ package dbService;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ProductSQLiteService implements DBService {
     private Connection con;
@@ -201,5 +202,33 @@ public class ProductSQLiteService implements DBService {
             throw e;
         }
         return rows;
+    }
+
+    public String getTotalProductsPrice(String filter) throws SQLException {
+        try {
+            Statement st = con.createStatement();
+            ResultSet res;
+            if (!Objects.equals(filter, "")) {
+                res = st.executeQuery(
+                        "SELECT SUM(price * quantity) AS total_price FROM Product WHERE category_name = '" + filter + "' ;"
+                );
+            } else {
+                res = st.executeQuery(
+                        "SELECT SUM(price * quantity) AS total_price FROM Product;"
+                );
+            }
+
+            String totalPrice = "";
+            while (res.next()) {
+                totalPrice = res.getString("total_price");
+            }
+            res.close();
+            st.close();
+            return totalPrice;
+        } catch (SQLException e) {
+            System.out.println("Не вірний SQL запит на вибірку даних");
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

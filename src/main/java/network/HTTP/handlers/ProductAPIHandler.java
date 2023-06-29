@@ -4,9 +4,12 @@ import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dbService.Category;
+import dbService.CategorySQLiteService;
 import dbService.Product;
 import dbService.ProductSQLiteService;
 import network.HTTP.HandleCommonHTTP;
+import network.HTTP.UtilHTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,8 +50,25 @@ public class ProductAPIHandler implements HttpHandler {
 
     private void handleGetAllProducts(HttpExchange exchange) throws IOException {
         try {
+            String queryString = exchange.getRequestURI().getRawQuery();
+            Map<String, String> queryParams = UtilHTTP.queryToMap(queryString);
+            String categoryParam = queryParams.get("category");
+
             ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
-            ArrayList<Product> products = productService.read();
+            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            ArrayList<Product> products;
+
+            if (categoryParam == null || categoryParam.equals("")) {
+                products = productService.read();
+            } else {
+                Category category = (Category) categoryService.findOne(categoryParam);
+                if (category == null) {
+                    HandleCommonHTTP.handleNotFound(exchange);
+                    return;
+                }
+                products = productService.listByCriteria("category_name = '" + category.name + "'");
+            }
+
             byte[] responseBytes = JsonWriter.objectToJson(products).getBytes(StandardCharsets.UTF_8);
             OutputStream os = exchange.getResponseBody();
             exchange.getResponseHeaders().set("Content-Type", "application/json");
