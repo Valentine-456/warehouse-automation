@@ -14,10 +14,11 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
-public class APIHandler implements HttpHandler {
+public class ProductAPIHandler implements HttpHandler {
     private final String DBConnectionURI = "storeHTTPServer.db";
 
     @Override
@@ -28,6 +29,8 @@ public class APIHandler implements HttpHandler {
 
             if (Objects.equals(method, "GET") && path.startsWith("/api/good/")) {
                 this.handleGetProductByName(exchange);
+            } else if (Objects.equals(method, "GET") && Objects.equals(path, "/api/good")) {
+                this.handleGetAllProducts(exchange);
             } else if (Objects.equals(method, "POST") && path.startsWith("/api/good/")) {
                 this.handleUpdateProductByName(exchange);
             } else if (Objects.equals(method, "DELETE") && path.startsWith("/api/good/")) {
@@ -39,6 +42,22 @@ public class APIHandler implements HttpHandler {
             }
         } catch (Exception e) {
             HandleCommonHTTP.handleInternalServerError(exchange, e);
+        }
+    }
+
+    private void handleGetAllProducts(HttpExchange exchange) throws IOException {
+        try {
+            ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
+            ArrayList<Product> products = productService.read();
+            byte[] responseBytes = JsonWriter.objectToJson(products).getBytes(StandardCharsets.UTF_8);
+            OutputStream os = exchange.getResponseBody();
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, responseBytes.length);
+            os.write(responseBytes);
+            os.flush();
+            os.close();
+        } catch (SQLException e) {
+            HandleCommonHTTP.handleBadRequest(exchange);
         }
     }
 
@@ -155,7 +174,6 @@ public class APIHandler implements HttpHandler {
                 HandleCommonHTTP.handleNotFound(exchange);
                 return;
             }
-
 
             product.setQuantity(quantityInt);
             product.setPrice(price);

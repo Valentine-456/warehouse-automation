@@ -1,9 +1,11 @@
 package network.HTTP;
 
+import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import network.HTTP.authentificators.AuthIsLoggedIn;
-import network.HTTP.handlers.APIHandler;
+import network.HTTP.handlers.CategoryAPIHandler;
+import network.HTTP.handlers.ProductAPIHandler;
 import network.HTTP.handlers.EchoHandler;
 import network.HTTP.handlers.LoginHandler;
 
@@ -33,9 +35,12 @@ public class StoreHTTPServer {
 
     private void addHandlers() {
         HttpContext loginContext = this.server.createContext("/login", new LoginHandler());
-        HttpContext APIContext = this.server.createContext("/api", new APIHandler());
+        HttpContext productAPIContext = this.server.createContext("/api/good", new ProductAPIHandler());
+        HttpContext categoryAPIContext = this.server.createContext("/api/category", new CategoryAPIHandler());
         HttpContext staticContext = this.server.createContext("/static", new EchoHandler());
-        APIContext.setAuthenticator(new AuthIsLoggedIn());
+        Authenticator authIsLoggedIn = new AuthIsLoggedIn();
+        productAPIContext.setAuthenticator(authIsLoggedIn);
+        categoryAPIContext.setAuthenticator(authIsLoggedIn);
     }
 
 }
