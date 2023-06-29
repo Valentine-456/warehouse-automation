@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DatabaseToolSources">
-    <data-source name="localhost1" uuid="4b6d422f-d065-417c-96a9-69e2efc3cb23" type="SQLITE">
+    <data-source name="localhost" uuid="b2fdd411-748c-41d0-8116-e6c44cb97597" type="SQLITE">
       <base-info connect-type="DB_DEFAULT" product="SQLite" version="3.40.1" jdbc-name="SQLite JDBC" jdbc-version="3.40.1.0" />
       <user-name />
       <schema-mapping>
@@ -11,7 +11,7 @@
           </node>
         </introspection-scope>
       </schema-mapping>
-      <url>jdbc:sqlite:C:/Universities/NaUKMA/client-server/wharehouse-automation/storeHTTPServer.db</url>
+      <url>jdbc:sqlite:C:/Universities/NaUKMA/client-server/wharehouse-automation/products.test.db</url>
       <remarks />
       <vm-options />
       <driver-info id="sqlite.xerial" />

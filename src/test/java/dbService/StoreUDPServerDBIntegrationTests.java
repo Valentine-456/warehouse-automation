@@ -4,12 +4,16 @@ import controller.Command;
 import network.UDP.StoreUDPClient;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 public class StoreUDPServerDBIntegrationTests {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, SQLException {
         StoreUDPClient client = new StoreUDPClient((byte) 2, 2);
 
-        Product product = new Product("Plums");
+        DBService catService = new CategorySQLiteService("products.test.db");
+        Category cat = (Category) catService.read().get(0);
+
+        Product product = new Product("Plums", cat.name);
         product.setPrice(BigDecimal.valueOf(19.9));
         product.setQuantity(180);
         StorePOJO storePOJO = new StorePOJO(

@@ -4,6 +4,7 @@
     <option name="dialects">
       <map>
         <entry key="$APPLICATION_CONFIG_DIR$/consoles/database-tool/d1b89db8-8695-4b23-9fe6-0512eb45bc72/console.sql" value="SQLite" />
+        <entry key="$APPLICATION_CONFIG_DIR$/consoles/database-tool/d2232ce8-2c0f-4f4c-9e0c-577014b04022/console.sql" value="SQLite" />
       </map>
     </option>
   </component>

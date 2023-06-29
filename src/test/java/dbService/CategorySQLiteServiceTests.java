@@ -6,6 +6,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class CategorySQLiteServiceTests {
@@ -25,13 +26,13 @@ public class CategorySQLiteServiceTests {
     }
 
     @Test
-    public void establishConnectionWithDB_NoException() {
+    public void establishConnectionWithDB_NoException() throws SQLException {
         DBService service = new CategorySQLiteService("products.test.db");
         System.out.println(service.read().size());
     }
 
     @Test
-    public void insertValues_AllValuesAreInsertedCorrectly() {
+    public void insertValues_AllValuesAreInsertedCorrectly() throws SQLException {
         DBService service = new CategorySQLiteService("products.test.db");
         int size = service.read().size();
 
@@ -46,7 +47,7 @@ public class CategorySQLiteServiceTests {
     }
 
     @Test
-    public void updateValues_ValuesActuallyChanged() {
+    public void updateValues_ValuesActuallyChanged() throws SQLException {
         DBService service = new CategorySQLiteService("products.test.db");
 
         Category category = new Category("Dairy");
@@ -62,7 +63,7 @@ public class CategorySQLiteServiceTests {
     }
 
     @Test
-    public void deleteValues_DeletedValuesAreNoLongerInDatabase() {
+    public void deleteValues_DeletedValuesAreNoLongerInDatabase() throws SQLException {
         DBService service = new CategorySQLiteService("products.test.db");
         int size = service.read().size();
 
@@ -76,7 +77,7 @@ public class CategorySQLiteServiceTests {
     }
 
     @Test
-    public void listByCriteria_ReadsOnlyCorrectItems() {
+    public void listByCriteria_ReadsOnlyCorrectItems() throws SQLException {
         DBService service = new CategorySQLiteService("products.test.db");
 
         Category category = new Category("HouseHold");
