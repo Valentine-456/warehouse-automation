@@ -5,6 +5,7 @@ import com.cedarsoftware.util.io.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dbService.Category;
+import dbService.CategoryPostgresService;
 import dbService.CategorySQLiteService;
 import network.HTTP.HandleCommonHTTP;
 
@@ -46,7 +47,7 @@ public class CategoryAPIHandler implements HttpHandler {
 
     private void handleGetAllCategories(HttpExchange exchange) throws IOException {
         try {
-            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
             ArrayList<Category> categories = categoryService.read();
             byte[] responseBytes = JsonWriter.objectToJson(categories).getBytes(StandardCharsets.UTF_8);
             OutputStream os = exchange.getResponseBody();
@@ -55,6 +56,7 @@ public class CategoryAPIHandler implements HttpHandler {
             os.write(responseBytes);
             os.flush();
             os.close();
+            categoryService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -69,7 +71,7 @@ public class CategoryAPIHandler implements HttpHandler {
                 return;
             }
             String categoryName = pathSplit[3];
-            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
             Category category = null;
 
             category = (Category) categoryService.findOne(categoryName);
@@ -84,6 +86,7 @@ public class CategoryAPIHandler implements HttpHandler {
                 os.flush();
                 os.close();
             }
+            categoryService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -104,7 +107,7 @@ public class CategoryAPIHandler implements HttpHandler {
                 return;
             }
 
-            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
             Category category = new Category(name);
             category.description = description;
             categoryService.create(category);
@@ -114,6 +117,7 @@ public class CategoryAPIHandler implements HttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             if (createdCategory == null) {
                 HandleCommonHTTP.handleConflict(exchange);
+                categoryService.closeConnection();
                 return;
             }
             byte[] responseBytes = JsonWriter.objectToJson(createdCategory).getBytes();
@@ -121,6 +125,7 @@ public class CategoryAPIHandler implements HttpHandler {
             os.write(responseBytes);
             os.flush();
             os.close();
+            categoryService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -136,10 +141,11 @@ public class CategoryAPIHandler implements HttpHandler {
             }
             String categoryName = pathSplit[3];
 
-            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
             Category category = (Category) categoryService.findOne(categoryName);
             if (category == null) {
                 HandleCommonHTTP.handleNotFound(exchange);
+                categoryService.closeConnection();
                 return;
             }
             categoryService.delete(category);
@@ -147,6 +153,7 @@ public class CategoryAPIHandler implements HttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(204, 0);
             os.close();
+            categoryService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -169,10 +176,11 @@ public class CategoryAPIHandler implements HttpHandler {
 
             String description = (String) requestJsonMap.get("description");
 
-            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
             Category category = (Category) categoryService.findOne(categoryName);
             if (category == null) {
                 HandleCommonHTTP.handleNotFound(exchange);
+                categoryService.closeConnection();
                 return;
             }
             category.description = description == null ? category.description : description;
@@ -182,6 +190,7 @@ public class CategoryAPIHandler implements HttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(204, 0);
             os.close();
+            categoryService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }

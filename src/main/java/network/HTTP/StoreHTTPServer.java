@@ -24,7 +24,7 @@ public class StoreHTTPServer {
             this.server = server;
             server.bind(new InetSocketAddress(this.port), 0);
             this.addHandlers();
-            server.setExecutor(Executors.newFixedThreadPool(20));
+            server.setExecutor(Executors.newFixedThreadPool(15));
             System.out.println("Server is running on port: " + this.port);
             server.start();
         } catch (IOException e) {

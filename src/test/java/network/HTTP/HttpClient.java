@@ -8,7 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class HttpClient {
-    public static String authorization = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdG9yZVNlcnZlciIsImxvZ2luIjoicm9vdCIsImV4cCI6MTY4ODA2ODM0MiwiaWF0IjoxNjg4MDY0NzQyLCJqdGkiOiIxYTYxNzkxZi03MGY0LTQ1MGMtYjQ4OC03MWQ4ZmIxYWRmMzYifQ.OAxDmgWvetawncThleZ7z8l8C_V87jv_S1Ats0lQ4qE";
+    public static String authorization = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdG9yZVNlcnZlciIsImxvZ2luIjoicm9vdCIsImV4cCI6MTY4ODA4MDUyMCwiaWF0IjoxNjg4MDc2OTIwLCJqdGkiOiI1ZTYzNjFhZS0wMzA4LTRiYTgtODdiNy04YWZmMjI5MmJkZmQifQ.x3jVOtXLcQu_20O20p-TvrHurbCTyRej3A7aCwsvL24";
 
     public static void sendGetHTTPRequest(String url) {
         try {

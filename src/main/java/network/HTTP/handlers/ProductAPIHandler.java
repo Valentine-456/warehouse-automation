@@ -4,10 +4,7 @@ import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import dbService.Category;
-import dbService.CategorySQLiteService;
-import dbService.Product;
-import dbService.ProductSQLiteService;
+import dbService.*;
 import network.HTTP.HandleCommonHTTP;
 import network.HTTP.UtilHTTP;
 
@@ -54,8 +51,8 @@ public class ProductAPIHandler implements HttpHandler {
             Map<String, String> queryParams = UtilHTTP.queryToMap(queryString);
             String categoryParam = queryParams.get("category");
 
-            ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
-            CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+            ProductPostgresService productService = new ProductPostgresService(this.DBConnectionURI);
+            CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
             ArrayList<Product> products;
 
             if (categoryParam == null || categoryParam.equals("")) {
@@ -64,6 +61,8 @@ public class ProductAPIHandler implements HttpHandler {
                 Category category = (Category) categoryService.findOne(categoryParam);
                 if (category == null) {
                     HandleCommonHTTP.handleNotFound(exchange);
+                    productService.closeConnection();
+                    categoryService.closeConnection();
                     return;
                 }
                 products = productService.listByCriteria("category_name = '" + category.name + "'");
@@ -76,6 +75,8 @@ public class ProductAPIHandler implements HttpHandler {
             os.write(responseBytes);
             os.flush();
             os.close();
+            productService.closeConnection();
+            categoryService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -90,12 +91,13 @@ public class ProductAPIHandler implements HttpHandler {
                 return;
             }
             String productName = pathSplit[3];
-            ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
+            ProductPostgresService productService = new ProductPostgresService(this.DBConnectionURI);
             Product product = null;
 
             product = (Product) productService.findOne(productName);
             if (product == null) {
                 HandleCommonHTTP.handleNotFound(exchange);
+                productService.closeConnection();
             } else {
                 byte[] responseBytes = JsonWriter.objectToJson(product).getBytes(StandardCharsets.UTF_8);
                 OutputStream os = exchange.getResponseBody();
@@ -104,6 +106,7 @@ public class ProductAPIHandler implements HttpHandler {
                 os.write(responseBytes);
                 os.flush();
                 os.close();
+                productService.closeConnection();
             }
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
@@ -134,7 +137,8 @@ public class ProductAPIHandler implements HttpHandler {
 
             int quantityInt = Math.toIntExact(quantity);
             BigDecimal price = BigDecimal.valueOf(Double.parseDouble(priceStr));
-            ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
+
+            ProductPostgresService productService = new ProductPostgresService(this.DBConnectionURI);
             Product product = new Product(name, category_name);
             product.setQuantity(quantityInt);
             product.setPrice(price);
@@ -147,6 +151,7 @@ public class ProductAPIHandler implements HttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             if (createdProduct == null) {
                 HandleCommonHTTP.handleConflict(exchange);
+                productService.closeConnection();
                 return;
             }
             byte[] responseBytes = JsonWriter.objectToJson(createdProduct).getBytes();
@@ -154,6 +159,7 @@ public class ProductAPIHandler implements HttpHandler {
             os.write(responseBytes);
             os.flush();
             os.close();
+            productService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -188,10 +194,12 @@ public class ProductAPIHandler implements HttpHandler {
 
             int quantityInt = Math.toIntExact(quantity);
             BigDecimal price = BigDecimal.valueOf(Double.parseDouble(priceStr));
-            ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
+
+            ProductPostgresService productService = new ProductPostgresService(this.DBConnectionURI);
             Product product = (Product) productService.findOne(productName);
             if (product == null) {
                 HandleCommonHTTP.handleNotFound(exchange);
+                productService.closeConnection();
                 return;
             }
 
@@ -207,6 +215,7 @@ public class ProductAPIHandler implements HttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(204, 0);
             os.close();
+            productService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }
@@ -222,10 +231,11 @@ public class ProductAPIHandler implements HttpHandler {
             }
             String productName = pathSplit[3];
 
-            ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
+            ProductPostgresService productService = new ProductPostgresService(this.DBConnectionURI);
             Product product = (Product) productService.findOne(productName);
             if (product == null) {
                 HandleCommonHTTP.handleNotFound(exchange);
+                productService.closeConnection();
                 return;
             }
             productService.delete(product);
@@ -233,6 +243,7 @@ public class ProductAPIHandler implements HttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(204, 0);
             os.close();
+            productService.closeConnection();
         } catch (SQLException e) {
             HandleCommonHTTP.handleBadRequest(exchange);
         }

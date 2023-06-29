@@ -2,9 +2,7 @@ package network.HTTP.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import dbService.Category;
-import dbService.CategorySQLiteService;
-import dbService.ProductSQLiteService;
+import dbService.*;
 import network.HTTP.HandleCommonHTTP;
 import network.HTTP.UtilHTTP;
 
@@ -39,24 +37,29 @@ public class StatisticsAPIHandler implements HttpHandler {
         String categoryParam = queryParams.get("category");
 
         String totalPrice = "0.0";
-        ProductSQLiteService productService = new ProductSQLiteService(this.DBConnectionURI);
-        CategorySQLiteService categoryService = new CategorySQLiteService(this.DBConnectionURI);
+        ProductPostgresService productService = new ProductPostgresService(this.DBConnectionURI);
+        CategoryPostgresService categoryService = new CategoryPostgresService(this.DBConnectionURI);
 
         if (categoryParam == null || categoryParam.equals("")) {
             totalPrice = productService.getTotalProductsPrice("");
         } else {
             Category category = (Category) categoryService.findOne(categoryParam);
             if (category == null) {
+                categoryService.closeConnection();
+                productService.closeConnection();
                 HandleCommonHTTP.handleNotFound(exchange);
                 return;
             }
             totalPrice = productService.getTotalProductsPrice(category.name);
         }
 
-        byte[] bytes = totalPrice.getBytes();
+        String response = totalPrice == null ? "0.0": totalPrice;
+        byte[] bytes = response.getBytes();
         OutputStream os = exchange.getResponseBody();
         exchange.sendResponseHeaders(200, bytes.length);
         os.write(bytes);
         os.close();
+        categoryService.closeConnection();
+        productService.closeConnection();
     }
 }
