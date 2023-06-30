@@ -8,6 +8,9 @@ public class CategorySQLiteService implements DBService {
 
     private void initTable() {
         try {
+            Statement st0 = con.createStatement();
+            st0.executeUpdate("PRAGMA foreign_keys = ON;");
+
             PreparedStatement st = con.prepareStatement("create table if not exists 'Category' (" +
                     "'name' TEXT PRIMARY KEY,\n" +
                     "'description' TEXT\n" +
@@ -40,7 +43,7 @@ public class CategorySQLiteService implements DBService {
     }
 
     @Override
-    public ArrayList read() {
+    public ArrayList read() throws SQLException {
         ArrayList<Category> rows = new ArrayList<>();
         try {
             Statement st = con.createStatement();
@@ -55,6 +58,7 @@ public class CategorySQLiteService implements DBService {
         } catch (SQLException e) {
             System.out.println("Не вірний SQL запит на вибірку даних");
             e.printStackTrace();
+            throw e;
         }
         return rows;
     }
@@ -79,7 +83,7 @@ public class CategorySQLiteService implements DBService {
     }
 
     @Override
-    public void update(Object obj) {
+    public void update(Object obj) throws SQLException {
         Category category = (Category) obj;
         try {
             PreparedStatement statement = con.prepareStatement(
@@ -95,11 +99,12 @@ public class CategorySQLiteService implements DBService {
         } catch (SQLException e) {
             System.out.println("Не вірний SQL запит на вставку");
             e.printStackTrace();
+            throw e;
         }
     }
 
     @Override
-    public void delete(Object obj) {
+    public void delete(Object obj) throws SQLException {
         Category category = (Category) obj;
         try {
             PreparedStatement statement = con.prepareStatement(
@@ -110,11 +115,12 @@ public class CategorySQLiteService implements DBService {
         } catch (SQLException e) {
             System.out.println("Не вірний SQL запит на вставку");
             e.printStackTrace();
+            throw e;
         }
     }
 
     @Override
-    public Object findOne(String key) {
+    public Object findOne(String key) throws SQLException {
         ArrayList<Category> rows = new ArrayList<>();
         try {
             PreparedStatement statement = con.prepareStatement(
@@ -133,13 +139,14 @@ public class CategorySQLiteService implements DBService {
         } catch (SQLException e) {
             System.out.println("Не вірний SQL запит на вибірку даних");
             e.printStackTrace();
+            throw e;
         }
         if (rows.size() > 0) return rows.get(0);
         else return null;
     }
 
     @Override
-    public ArrayList listByCriteria(String filter) {
+    public ArrayList listByCriteria(String filter) throws SQLException {
         ArrayList<Category> rows = new ArrayList<>();
         try {
             Statement st = con.createStatement();
@@ -154,6 +161,7 @@ public class CategorySQLiteService implements DBService {
         } catch (SQLException e) {
             System.out.println("Не вірний SQL запит на вибірку даних");
             e.printStackTrace();
+            throw e;
         }
         return rows;
     }

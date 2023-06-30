@@ -5,6 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class DBSQLServiceFacadeTests {
     @BeforeClass
@@ -23,7 +24,7 @@ public class DBSQLServiceFacadeTests {
     }
 
     @Test
-    public void establishConnectionWithDB_NoException() {
+    public void establishConnectionWithDB_NoException() throws SQLException {
         DBSQLServiceFacade dbFacade = new DBSQLServiceFacade("products.test.db");
         System.out.println(dbFacade.productService.read().size());
         System.out.println(dbFacade.categoryService.read().size());

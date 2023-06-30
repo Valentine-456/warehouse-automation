@@ -3,7 +3,8 @@ package dbService;
 import java.math.BigDecimal;
 
 public class Product {
-    public Product(String name) {
+    public Product(String name, String category_name) {
+        this.category_name = category_name;
         this.name = name;
     }
 
@@ -11,6 +12,7 @@ public class Product {
     public String description = "";
     public String manufacturer = "";
     private int quantity = 0;
+    public String category_name;
     private BigDecimal price = BigDecimal.ZERO;
 
     public void setQuantity(int quantity) {

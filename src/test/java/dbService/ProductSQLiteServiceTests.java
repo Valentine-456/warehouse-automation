@@ -7,12 +7,16 @@ import org.junit.Test;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ProductSQLiteServiceTests {
     @BeforeClass
-    public static void clearTestSpace() {
+    public static void clearTestSpace() throws SQLException {
         cleanTestDatabase();
+        DBService catService = new CategorySQLiteService("products.test.db");
+        if(catService.read().size() == 0)
+            catService.create(new Category("Fruits"));
     }
 
     public static void cleanTestDatabase() {
@@ -26,16 +30,18 @@ public class ProductSQLiteServiceTests {
     }
 
     @Test
-    public void establishConnectionWithDB_NoException() {
+    public void establishConnectionWithDB_NoException() throws SQLException {
         DBService service = new ProductSQLiteService("products.test.db");
         System.out.println(service.read().size());
     }
 
     @Test
-    public void insertValues_AllValuesAreInsertedCorrectly() {
+    public void insertValues_AllValuesAreInsertedCorrectly() throws SQLException {
         DBService service = new ProductSQLiteService("products.test.db");
+        DBService catService = new CategorySQLiteService("products.test.db");
+        Category cat = (Category) catService.read().get(0);
 
-        Product product1 = new Product("Apples");
+        Product product1 = new Product("Apples", cat.name);
         product1.description = "Delicious";
         product1.setQuantity(20);
         product1.setPrice(BigDecimal.valueOf(5.25));
@@ -49,10 +55,12 @@ public class ProductSQLiteServiceTests {
     }
 
     @Test
-    public void updateValues_ValuesActuallyChanged() {
+    public void updateValues_ValuesActuallyChanged() throws SQLException {
         DBService service = new ProductSQLiteService("products.test.db");
+        DBService catService = new CategorySQLiteService("products.test.db");
+        Category cat = (Category) catService.read().get(0);
 
-        Product product1 = new Product("Mushrooms");
+        Product product1 = new Product("Mushrooms", cat.name);
         product1.description = "Delicious";
         product1.setQuantity(20);
         product1.setPrice(BigDecimal.valueOf(5.25));
@@ -70,10 +78,12 @@ public class ProductSQLiteServiceTests {
     }
 
     @Test
-    public void deleteValues_DeletedValuesAreNoLongerInDatabase() {
+    public void deleteValues_DeletedValuesAreNoLongerInDatabase() throws SQLException {
         DBService service = new ProductSQLiteService("products.test.db");
+        DBService catService = new CategorySQLiteService("products.test.db");
+        Category cat = (Category) catService.read().get(0);
 
-        Product product1 = new Product("Apples");
+        Product product1 = new Product("Apples", cat.name);
         product1.description = "Delicious";
         product1.setQuantity(20);
         product1.setPrice(BigDecimal.valueOf(5.25));
@@ -85,10 +95,12 @@ public class ProductSQLiteServiceTests {
     }
 
     @Test
-    public void listByCriteria_ReadsOnlyCorrectItems() {
+    public void listByCriteria_ReadsOnlyCorrectItems() throws SQLException {
         DBService service = new ProductSQLiteService("products.test.db");
+        DBService catService = new CategorySQLiteService("products.test.db");
+        Category cat = (Category) catService.read().get(0);
 
-        Product product1 = new Product("0");
+        Product product1 = new Product("0", cat.name);
         product1.description = "Delicious";
         product1.setQuantity(1);
         product1.setPrice(BigDecimal.valueOf(5.25));

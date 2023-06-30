@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DatabaseToolSources">
-    <data-source name="localhost1" uuid="4b6d422f-d065-417c-96a9-69e2efc3cb23" type="SQLITE">
+    <data-source name="localhost" uuid="f17b6f2f-0f4f-424b-b477-f2d3d273e59a" type="SQLITE">
       <base-info connect-type="DB_DEFAULT" product="SQLite" version="3.40.1" jdbc-name="SQLite JDBC" jdbc-version="3.40.1.0" />
       <user-name />
       <schema-mapping>

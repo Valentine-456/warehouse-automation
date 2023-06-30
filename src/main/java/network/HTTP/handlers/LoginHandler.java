@@ -17,6 +17,13 @@ public class LoginHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        UtilHTTP.enableCORS(exchange);
+        if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+            exchange.sendResponseHeaders(204, -1);
+            exchange.getResponseBody().close();
+            return;
+        }
+
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
         OutputStream os = exchange.getResponseBody();
@@ -39,7 +46,8 @@ public class LoginHandler implements HttpHandler {
         }
 
         String jwtToken = this.jwtService.sign(this.systemLogin);
-        byte[] bytes = "OK!".getBytes();
+        String response = "Bearer " + jwtToken;
+        byte[] bytes = response.getBytes();
         exchange.getResponseHeaders().add("Authorization", "Bearer " + jwtToken);
 
         exchange.sendResponseHeaders(200, bytes.length);
