@@ -24,6 +24,12 @@ public class ProductAPIHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
+            UtilHTTP.enableCORS(exchange);
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.getResponseBody().close();
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
 
@@ -121,7 +127,7 @@ public class ProductAPIHandler implements HttpHandler {
 
             String name = (String) requestJsonMap.get("name");
             String category_name = (String) requestJsonMap.get("category_name");
-            Long quantity = (Long) requestJsonMap.get("quantity");
+            Long quantity = Long.valueOf(requestJsonMap.get("quantity").toString());
             String priceStr = (String) requestJsonMap.get("price");
             String description = (String) requestJsonMap.get("description");
             String manufacturer = (String) requestJsonMap.get("manufacturer");
@@ -180,7 +186,7 @@ public class ProductAPIHandler implements HttpHandler {
             Map<String, Object> requestJsonMap = JsonReader.jsonToMaps(requestBody);
 
             String category_name = (String) requestJsonMap.get("category_name");
-            Long quantity = (Long) requestJsonMap.get("quantity");
+            Long quantity = Long.valueOf(requestJsonMap.get("quantity").toString());;
             String priceStr = (String) requestJsonMap.get("price");
             String description = (String) requestJsonMap.get("description");
             String manufacturer = (String) requestJsonMap.get("manufacturer");

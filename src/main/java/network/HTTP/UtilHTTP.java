@@ -1,5 +1,8 @@
 package network.HTTP;
 
+import com.sun.net.httpserver.HttpExchange;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,4 +22,10 @@ public class UtilHTTP {
         return result;
     }
 
+    public static void enableCORS(HttpExchange httpExchange) throws IOException {
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+        httpExchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    }
 }

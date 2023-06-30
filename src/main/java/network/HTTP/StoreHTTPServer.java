@@ -37,7 +37,7 @@ public class StoreHTTPServer {
         HttpContext productAPIContext = this.server.createContext("/api/good", new ProductAPIHandler());
         HttpContext categoryAPIContext = this.server.createContext("/api/category", new CategoryAPIHandler());
         HttpContext statisticsAPIContext = this.server.createContext("/api/statistics", new StatisticsAPIHandler());
-        HttpContext staticContext = this.server.createContext("/static", new EchoHandler());
+        HttpContext staticContext = this.server.createContext("/", new ServeStaticHandler("src/main/resources"));
 
         Authenticator authIsLoggedIn = new AuthIsLoggedIn();
         productAPIContext.setAuthenticator(authIsLoggedIn);

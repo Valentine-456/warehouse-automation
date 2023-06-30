@@ -18,6 +18,7 @@ public class StatisticsAPIHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
+            UtilHTTP.enableCORS(exchange);
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
 

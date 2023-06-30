@@ -36,7 +36,7 @@ public class ProductPostgresService implements DBService {
             Class.forName("org.postgresql.Driver");
 
             con = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost:49153/postgres?user=postgres&password=postgrespw"
+                    "jdbc:postgresql://localhost:49154/postgres?user=postgres&password=postgrespw"
             );
             this.initTable();
         } catch (ClassNotFoundException e) {

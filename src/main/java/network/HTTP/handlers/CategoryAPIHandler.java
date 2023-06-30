@@ -6,8 +6,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dbService.Category;
 import dbService.CategoryPostgresService;
-import dbService.CategorySQLiteService;
 import network.HTTP.HandleCommonHTTP;
+import network.HTTP.UtilHTTP;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +24,12 @@ public class CategoryAPIHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
+            UtilHTTP.enableCORS(exchange);
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.getResponseBody().close();
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
 

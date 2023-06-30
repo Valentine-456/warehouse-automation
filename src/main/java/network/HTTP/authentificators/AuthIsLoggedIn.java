@@ -12,6 +12,9 @@ public class AuthIsLoggedIn extends Authenticator {
 
     @Override
     public Result authenticate(HttpExchange httpExchange) {
+        if (httpExchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+            return new Success(new HttpPrincipal("user", "realm"));
+        }
         String authorizationHeader = httpExchange.getRequestHeaders().getFirst("Authorization");
         if (authorizationHeader == null)
             return new Failure(403);
