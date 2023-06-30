@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CategoryAPIHandler implements HttpHandler {
-    private final String DBConnectionURI = "storeHTTPServer.db";
+    private final String DBConnectionURI = "jdbc:postgresql://localhost:49154/postgres?user=postgres&password=postgrespw";
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

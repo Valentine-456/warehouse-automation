@@ -13,12 +13,17 @@ import java.util.Map;
 import java.util.Objects;
 
 public class StatisticsAPIHandler implements HttpHandler {
-    private final String DBConnectionURI = "storeHTTPServer.db";
+    private final String DBConnectionURI = "jdbc:postgresql://localhost:49154/postgres?user=postgres&password=postgrespw";
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
             UtilHTTP.enableCORS(exchange);
+            if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.getResponseBody().close();
+                return;
+            }
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
 

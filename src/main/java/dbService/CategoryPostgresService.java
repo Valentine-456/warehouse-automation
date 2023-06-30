@@ -28,9 +28,7 @@ public class CategoryPostgresService implements DBService {
         try {
             Class.forName("org.postgresql.Driver");
 
-            con = DriverManager.getConnection(
-                    "jdbc:postgresql://localhost:49154/postgres?user=postgres&password=postgrespw"
-            );
+            con = DriverManager.getConnection(name);
             this.initTable();
         } catch (ClassNotFoundException e) {
             System.out.println("Не знайшли драйвер JDBC");
